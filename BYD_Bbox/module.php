@@ -276,6 +276,15 @@ abstract class VARIABLE
 			IPS_LogMessage(__CLASS__ . " - " . __FUNCTION__, $logMsg);	
 					
 			SetValue($this->GetIDForIdent("cellVoltageDiffMaxToday"), 0); 
+
+			$parentId = $this->GetCategoryID("Diagnosis", "Diagnosis", $this->parentRootId);
+			if($parentId !== false) {
+				$varId = @IPS_GetObjectIDByIdent("cellDriftMaxToday", $parentId);
+						if($varId !== false) {
+							SetValue($varId, 0); 
+						}
+			}
+
 			$this->SetTimerMidnight();
 
 			$this->RequestBeConnectAppData1("via Midnight Timer");
@@ -296,7 +305,7 @@ abstract class VARIABLE
 
 		public function Timer_AutoUpdate() {
 			
-			$UpdateMultiplier = $this->ReadPropertyInteger("ns_UpdateMultiplier");
+			
 
 			$connectionState = $this->GetConnectionState();
 
@@ -306,9 +315,29 @@ abstract class VARIABLE
 
 				if($this->ReadPropertyBoolean("cb_AppData1")) 			{ $this->RequestBeConnectAppData1(""); IPS_Sleep(250); }
 				if($this->ReadPropertyBoolean("cb_AppData2")) 			{ $this->RequestBeConnectAppData2(""); IPS_Sleep(250); }
-				if($this->ReadPropertyBoolean("cb_PlusSystemInfo")) 	{ $this->RequestBeConnectPlusSystemInfo(""); IPS_Sleep(250); }
-				if($this->ReadPropertyBoolean("cb_PlusDiagnosis")) 	{ $this->RequestBeConnectPlusDiagnosis(""); IPS_Sleep(250); }
-				if($this->ReadPropertyBoolean("cb_PlusHistory")) 		{ $this->RequestBeConnectPlusHistory(""); IPS_Sleep(250); }
+				SetValue($this->GetIDForIdent("beConnectAppUpdateCnt"), GetValue($this->GetIDForIdent("beConnectAppUpdateCnt")) + 1);  
+
+
+				$updateMultiplier = 1;
+				if(GetValue($this->GetIDForIdent("cellVoltageDiff")) < 0.05) {
+					$updateMultiplier = $this->ReadPropertyInteger("ns_UpdateMultiplier");
+				}
+
+				$beConnectPlusUpdateHelper = GetValue($this->GetIDForIdent("beConnectPlusUpdateHelper"));
+				$beConnectPlusUpdateHelper--;
+				if($beConnectPlusUpdateHelper <= 0) {
+					SetValue($this->GetIDForIdent("beConnectPlusUpdateHelper"), $updateMultiplier); 
+					if($this->ReadPropertyBoolean("cb_PlusSystemInfo")) 	{ $this->RequestBeConnectPlusSystemInfo(""); IPS_Sleep(250); }
+					if($this->ReadPropertyBoolean("cb_PlusDiagnosis")) 	{ $this->RequestBeConnectPlusDiagnosis(""); IPS_Sleep(250); }
+					if($this->ReadPropertyBoolean("cb_PlusHistory")) 		{ $this->RequestBeConnectPlusHistory(""); IPS_Sleep(250); }		
+					
+					SetValue($this->GetIDForIdent("beConnectPlusUpdateCnt"), GetValue($this->GetIDForIdent("beConnectPlusUpdateCnt")) + 1);  
+					
+				} else {
+					if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Skip BeConnect Plus Update [%d]", $beConnectPlusUpdateHelper), 0); }
+					SetValue($this->GetIDForIdent("beConnectPlusUpdateHelper"), $beConnectPlusUpdateHelper); 
+				}
+
 						
 			} else {
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("AutoUpate CANCELED > Master Swich is OFF > Connection State '%s' ...", $this->GetConnectionState()), 0); }
@@ -556,6 +585,7 @@ abstract class VARIABLE
 	
 			$cellDrift = $cellV_Hight - $cellV_Low;
 			$this->SaveVariableValue($cellDrift, $categoryId, "cellDrift", "Cell Drift", VARIABLE::TYPE_INTEGER, 6, "BYD_CellVoltage");
+			$this->SaveVariableValue($cellDrift, $categoryId, "cellDriftMaxToday", "Cell Drift Max (Today)", VARIABLE::TYPE_INTEGER, 6, "BYD_CellVoltage", true);
 
 			$this->ExtractSaveValue($byteArray, 7, 1, 1, $categoryId, "cellT_High", "Cell Temp Max", VARIABLE::TYPE_FLOAT, 7, "BYD_Temp.1"); 
 			$this->ExtractSaveValue($byteArray, 9, 1, 1, $categoryId, "cellT_Low", "Cell Temp Min", VARIABLE::TYPE_FLOAT, 9, "BYD_Temp.1"); 
@@ -683,7 +713,7 @@ abstract class VARIABLE
 		}
 
 
-		protected function SaveVariableValue($value, $parentId, $varIdent, $varName, $varType=3, $position=0, $varProfile="") {
+		protected function SaveVariableValue($value, $parentId, $varIdent, $varName, $varType=3, $position=0, $varProfile="", $asMaxValue=false) {
 			
 			$varId = @IPS_GetObjectIDByIdent($varIdent, $parentId);
             if($varId === false) {
@@ -702,7 +732,15 @@ abstract class VARIABLE
 
             }			
 			
-			SetValue($varId, $value);  
+			if($asMaxValue) {
+				$valueTemp = GetValue($varId); 
+				if($value > $valueTemp) {
+					SetValue($varId, $value); 	
+				}
+
+			} else {
+				SetValue($varId, $value);  
+			}
 			return $value;
 		}
 
@@ -970,7 +1008,10 @@ abstract class VARIABLE
 			$this->RegisterVariableInteger("receiveCnt", "Receive Cnt", "", 910);
 			$this->RegisterVariableInteger("crcErrorCnt", "CRC Error Cnt", "", 920);
 			$this->RegisterVariableInteger("instanzInactivCnt", "Instanz Inactiv Cnt", "", 930);
-			$this->RegisterVariableInteger("LastDataReceived", "Last Data Received", "~UnixTimestamp", 940);
+			$this->RegisterVariableInteger("beConnectAppUpdateCnt", "BeConnect App Update Cnt", "", 941);
+			$this->RegisterVariableInteger("beConnectPlusUpdateCnt", "BeConnect Plus Update Cnt", "", 941);
+			$this->RegisterVariableInteger("beConnectPlusUpdateHelper", "BeConnectPlus Update Helper", "", 942);
+	  		$this->RegisterVariableInteger("LastDataReceived", "Last Data Received", "~UnixTimestamp", 950);
 
 			IPS_ApplyChanges($this->archivInstanzID);
 

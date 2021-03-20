@@ -33,7 +33,7 @@ trait BYD_Bbox_1 {
         return $crc;
     }
     
-    function reversebyte(int $byte) {
+    function reversebyte($byte) {
         $ob = 0;
         $b = (1 << 7);
         for ($i = 0; $i <= 7; $i++) {
