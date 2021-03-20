@@ -1,0 +1,170 @@
+{
+    "elements": [
+        {
+            "name": "AutoUpdate",
+            "type": "CheckBox",
+            "caption": "Auto Update"
+        },
+        {
+            "name": "TimerInterval",
+            "type": "NumberSpinner",
+            "caption": "Update Interval [sec]"
+        },
+        {
+            "name": "LogLevel",
+            "type": "Select",
+            "caption": "Debug/Log Level",
+            "options": [
+                {
+                    "label": "ALL",
+                    "value": 9
+                },
+                {
+                    "label": "TEST",
+                    "value": 8
+                },
+                {
+                    "label": "TRACE",
+                    "value": 7
+                },
+                {
+                    "label": "COMMUNICATION",
+                    "value": 6
+                },
+                {
+                    "label": "DEBUG",
+                    "value": 5
+                },
+                {
+                    "label": "INFO",
+                    "value": 4
+                },
+                {
+                    "label": "WARN",
+                    "value": 3
+                },
+                {
+                    "label": "ERROR",
+                    "value": 2
+                },
+                {
+                    "label": "FATAL",
+                    "value": 1
+                },
+                {
+                    "label": "OFF",
+                    "value": 0
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "BeConnct App Updates",
+            "expanded": true,
+            "visible": true,
+            "items": [
+                {
+                    "name": "cb_AppData1",
+                    "type": "CheckBox",
+                    "caption": "BeConnect App - Data1 (SerNr, Firmware Versions)"
+                },
+                {
+                    "name": "cb_AppData2",
+                    "type": "CheckBox",
+                    "caption": "BeConnect App - Data2 (Voltages, Current, Temp, SOC, SOH)"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "BeConnct Plus Updates",
+            "expanded": true,
+            "visible": true,
+            "items": [
+                {
+                    "name": "ns_UpdateMultiplier",
+                    "type": "NumberSpinner",
+                    "caption": "Update Interval multiplier",
+                    "suffix": "x"
+                },
+                {
+                    "name": "cb_PlusSystemInfo",
+                    "type": "CheckBox",
+                    "enabled": false,
+                    "caption": "BeConnect Plus - System Info *"
+                },
+                {
+                    "name": "cb_PlusDiagnosis",
+                    "type": "CheckBox",
+                    "caption": "BeConnect Plus - Diagnosis (BMS1 Inormations, Cell Infos)"
+                },
+                {
+                    "name": "cb_PlusHistory",
+                    "type": "CheckBox",
+                    "enabled": false,
+                    "caption": "BeConnect Plus - History (BMU & BMS1 Historical Data) *"
+                },
+                {
+                    "type": "Label",
+                    "label": "* Not implemented yet"
+                }                               
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "ExpansionPanel",
+            "caption": "Manual Update Requests",
+            "expanded": false,
+            "visible": true,
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Request BeConnect App - Data1 (SerNr, Firmware Versions)",
+                    "onClick": "BYD_RequestBeConnectAppData1($id, '');"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Request BeConnect App - Data2 (Voltages, Current, Temp, SOC, SOH)",
+                    "onClick": "BYD_RequestBeConnectAppData2($id, '');"
+                },
+                {
+                    "type": "Button",
+                    "enabled": false,
+                    "caption": "Request BeConnect Plus - System Info *",
+                    "onClick": "BYD_RequestBeConnectPlusSystemInfo($id, '');"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Request BeConnect Plus - Diagnosis",
+                    "onClick": "BYD_RequestBeConnectPlusDiagnosis($id, '');"
+                },
+                {
+                    "type": "Button",
+                    "enabled": false,
+                    "caption": "Request BeConnect Plus - History *",
+                    "onClick": "BYD_RequestBeConnectPlusHistory($id, '');"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Reset and Delete Funkctions",
+            "expanded": false,
+            "visible": true,
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Reset Calculations & Counter Variables",
+                    "onClick": "BYD_ResetCalculationsAndCounter($id, $Text);"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Delete Archiv Data (up to now)",
+                    "onClick": "BYD_DeleteLoggedData($id, $Text);"
+                }
+            ]
+        }
+    ],
+    "status": []
+}

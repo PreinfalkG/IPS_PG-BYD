@@ -1,0 +1,64 @@
+<?
+
+/*
+$init = 0x0284;
+$xorout=0x0000;
+$poly=0x8005;
+$crc16 = $this->crc16($dataCrcCheck, $init, $xorout, $poly, true, true);
+*/
+
+
+trait BYD_Bbox_1 {
+
+	function crc16($data, $init=0x0000, $xorout=0x0000, $poly=0x8005, $reversebyte=true, $reversebits=true)  {
+
+        $crc = $init;       // Init
+        $len = strlen($data);
+        $i = 0;
+        while ($len--) {
+            if($reversebyte) {
+                $crc ^= $this->reversebyte(ord($data[$i++])) << 8;
+            } else {
+                $crc ^= ord($data[$i++]) << 8;
+            }
+            $crc &= 0xffff;
+            for ($j = 0; $j < 8; $j++){
+                $crc = ($crc & 0x8000) ? ($crc << 1) ^ 0x8005 : $crc << 1;
+                $crc &= 0xffff;
+            }
+        }
+        $crc ^= $xorout;        // Final XOR
+        if($reversebits) { $crc = $this->reversebits($crc); }
+        //$crc = dechex($crc);
+        return $crc;
+    }
+    
+    function reversebyte(int $byte) {
+        $ob = 0;
+        $b = (1 << 7);
+        for ($i = 0; $i <= 7; $i++) {
+            if (($byte & $b) !== 0) {
+                $ob |= (1 << $i);
+            }
+            $b >>= 1;
+        }
+        return $ob;
+    }
+    
+    function reversebits($cc) {
+        $ob = 0;
+        $b = (1 << 15);
+        for ($i = 0; $i <= 15; $i++) {
+            if (($cc & $b) !== 0) {
+                $ob |= (1 << $i);
+            }
+            $b >>= 1;
+        }
+        return $ob;
+    }
+
+
+}
+
+
+?>

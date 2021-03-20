@@ -1,0 +1,16 @@
+{
+    "id": "{117762BD-08EB-00FB-D41F-14F7E1802724}",
+    "name": "BYD_Bbox",
+    "type": 3,
+    "vendor": "BYD",
+    "aliases": ["BYD B-Box Premium HVS/HVM"],
+    "parentRequirements": [
+        "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{018EF6B5-AB94-40C6-AA53-46943E824ACF}"
+    ],
+    "prefix": "BYD",
+    "url": ""
+}
