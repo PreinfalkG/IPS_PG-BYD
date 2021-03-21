@@ -19,7 +19,7 @@ abstract class VARIABLE
     const TYPE_BOOLEAN = 0;
     const TYPE_INTEGER = 1;
     const TYPE_FLOAT = 2;
-    const YPE_STRING = 3;
+    const TYPE_STRING = 3;
 }
 
 
