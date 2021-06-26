@@ -87,6 +87,13 @@ abstract class VARIABLE
 			//Never delete this line!
 			parent::ApplyChanges();
 
+			$this->logLevel = $this->ReadPropertyInteger("LogLevel");
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Log-Level to %d", $this->logLevel), 0); }
+			
+			if (IPS_GetKernelRunlevel() != KR_READY) {
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("GetKernelRunlevel is '%s'", $IPS_GetKernelRunlevel()), 0); }
+				//return;
+			}
 
 			if ((float) IPS_GetKernelVersion() < 4.2) {
 				$this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -94,7 +101,7 @@ abstract class VARIABLE
 				$this->RegisterMessage(0, IPS_KERNELSTARTED);
 				$this->RegisterMessage(0, IPS_KERNELSHUTDOWN);
 			}
-			
+
 			$this->RegisterMessage($this->InstanceID, IM_CONNECT);
 			$this->RegisterMessage($this->InstanceID, IM_DISCONNECT);
 			$this->RegisterMessage($this->InstanceID, IM_CHANGESTATUS);
@@ -103,8 +110,10 @@ abstract class VARIABLE
 			$this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
 
 			$conID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-			if($conID > 0) {
+				if($conID > 0) {
 
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Instance ConnectionID is '%s' >> RegisterMessages for this Connection ...", $conID), 0); }
+				
 				$this->RegisterMessage($conID , IM_CONNECT);
 				$this->RegisterMessage($conID , IM_DISCONNECT);		
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("RegisterMessage 'IM_CONNECT' and 'IM_DISCONNECT' for Instanz '%s'", $conID), 0); }	
@@ -120,15 +129,11 @@ abstract class VARIABLE
 				$this->RegisterMessage($conID , FM_CONNECT);
 				$this->RegisterMessage($conID , FM_DISCONNECT);		
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("RegisterMessage 'FM_CONNECT' and 'FM_DISCONNECT' for Instanz '%s'", $conID), 0); }	
+
+			} else {
+				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Instance ConnectionID is '%s'", $conID), 0); }	
 			}
 	
-			if (IPS_GetKernelRunlevel() != KR_READY) {
-				return;
-			}
-
-
-			$this->logLevel = $this->ReadPropertyInteger("LogLevel");
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Log-Level to %d", $this->logLevel), 0); }
 
 			$this->RegisterProfiles();
 			$this->RegisterVariables();  
