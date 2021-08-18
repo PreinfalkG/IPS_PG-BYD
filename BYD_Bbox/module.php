@@ -91,7 +91,7 @@ abstract class VARIABLE
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Log-Level to %d", $this->logLevel), 0); }
 			
 			if (IPS_GetKernelRunlevel() != KR_READY) {
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("GetKernelRunlevel is '%s'", $IPS_GetKernelRunlevel()), 0); }
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("GetKernelRunlevel is '%s'", IPS_GetKernelRunlevel()), 0); }
 				//return;
 			}
 
@@ -110,7 +110,7 @@ abstract class VARIABLE
 			$this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
 
 			$conID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-				if($conID > 0) {
+			if($conID > 0) {
 
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Instance ConnectionID is '%s' >> RegisterMessages for this Connection ...", $conID), 0); }
 				
