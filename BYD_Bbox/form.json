@@ -155,13 +155,14 @@
             "items": [
                 {
                     "type": "Button",
+                    "confirm": "This sets the counter variables to 0. Are you sure?",
                     "caption": "Reset Calculations & Counter Variables",
-                    "onClick": "BYD_ResetCalculationsAndCounter($id, $Text);"
+                    "onClick": "BYD_ResetCalculationsAndCounter($id, 'ModulForm');"
                 },
                 {
                     "type": "Button",
                     "caption": "Delete Archiv Data (up to now)",
-                    "onClick": "BYD_DeleteLoggedData($id, $Text);"
+                    "onClick": "BYD_DeleteLoggedData($id, 'ModulForm');"
                 }
             ]
         }

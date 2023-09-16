@@ -52,8 +52,7 @@ abstract class VARIABLE
 			}
 		}
 
-		public function Create()
-		{
+		public function Create() {
 			//Never delete this line!
 			parent::Create();
 
@@ -310,8 +309,6 @@ abstract class VARIABLE
 
 		public function Timer_AutoUpdate() {
 			
-			
-
 			$connectionState = $this->GetConnectionState();
 
 			$masterOnOff = GetValue($this->GetIDForIdent("masterOnOff"));
@@ -777,7 +774,7 @@ abstract class VARIABLE
 		}
 
 
-		public function ResetCalculationsAndCounter() {
+		public function ResetCalculationsAndCounter(string $source) {
 
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "RESET Calculation and Counter Values", 0); }
 
@@ -797,39 +794,44 @@ abstract class VARIABLE
 			SetValue($this->GetIDForIdent("LastDataReceived"), 0); 
 		}
 
-		public function DeleteLoggedData(string $Text) {
+		public function DeleteLoggedData(string $source) {
 
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  ..:: DELETE LOGGED DATA :: ..', 0); }
-			$timerIntervalTemp = $this->GetTimerInterval("Timer_AutoUpdate");
-			$this->SetTimerInterval("Timer_AutoUpdate", 0);
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'STOP "Timer_AutoUpdate" !', 0); }
+			$enable_DeleteLoggedData = false;
+			if($enable_DeleteLoggedData) {
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  ..:: DELETE LOGGED DATA :: ..', 0); }
+				$timerIntervalTemp = $this->GetTimerInterval("Timer_AutoUpdate");
+				$this->SetTimerInterval("Timer_AutoUpdate", 0);
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'STOP "Timer_AutoUpdate" !', 0); }
 
-			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("InstanceID: %s", $this->InstanceID), 0); }
+				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("InstanceID: %s", $this->InstanceID), 0); }
 
-			$archiveControlID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0]; 
-			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Archiv Conrol ID: %s", $archiveControlID), 0); }
+				$archiveControlID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0]; 
+				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Archiv Conrol ID: %s", $archiveControlID), 0); }
 
-			$childrenIDs = IPS_GetChildrenIDs($this->InstanceID);
-				foreach($childrenIDs as $childID) {
-					if (IPS_GetObject($childID)["ObjectType"] == 2) {
-					$loggingStatus = AC_GetLoggingStatus($archiveControlID, $childID);
-					if($loggingStatus) {
-						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is TRUE', $childID, IPS_GetName($childID)), 0); }
-						$result = AC_DeleteVariableData($archiveControlID, $childID, 0, time());
-						if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('%d Logged Values deleted for Variable "[%s] %s"', $result, $childID, IPS_GetName($childID)), 0); }
-						$result = AC_ReAggregateVariable($archiveControlID, $childID);
-						if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Start Reaggregation for Variable "[%s] %s" [result: %b]', $childID, IPS_GetName($childID), $result), 0); }
-						IPS_Sleep(150);
+				$childrenIDs = IPS_GetChildrenIDs($this->InstanceID);
+					foreach($childrenIDs as $childID) {
+						if (IPS_GetObject($childID)["ObjectType"] == 2) {
+						$loggingStatus = AC_GetLoggingStatus($archiveControlID, $childID);
+						if($loggingStatus) {
+							if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is TRUE', $childID, IPS_GetName($childID)), 0); }
+							$result = AC_DeleteVariableData($archiveControlID, $childID, 0, time());
+							if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('%d Logged Values deleted for Variable "[%s] %s"', $result, $childID, IPS_GetName($childID)), 0); }
+							$result = AC_ReAggregateVariable($archiveControlID, $childID);
+							if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Start Reaggregation for Variable "[%s] %s" [result: %b]', $childID, IPS_GetName($childID), $result), 0); }
+							IPS_Sleep(150);
+						} else {
+							if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is FALSE', $childID, IPS_GetName($childID)), 0); }
+						}
 					} else {
-						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is FALSE', $childID, IPS_GetName($childID)), 0); }
+						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Object "[%s] %s" is no Variable', $childID, IPS_GetName($childID)), 0); }	
 					}
-				} else {
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Object "[%s] %s" is no Variable', $childID, IPS_GetName($childID)), 0); }	
 				}
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Restore Timer Interval for "Timer_AutoUpdate" to %d ms', $timerIntervalTemp), 0); }
+				$this->SetTimerInterval("Timer_AutoUpdate", $timerIntervalTemp);
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  - - - :: LOGGED DATA DELETED :: - - - ', 0); }
+			} else {
+				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, '  - - - :: LOGGED DATA NOT DELETED > function disabled ! ', 0); }
 			}
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Restore Timer Interval for "Timer_AutoUpdate" to %d ms', $timerIntervalTemp), 0); }
-			$this->SetTimerInterval("Timer_AutoUpdate", $timerIntervalTemp);
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  - - - :: LOGGED DATA DELETED :: - - - ', 0); }
 		}	
 
 
