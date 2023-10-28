@@ -786,11 +786,15 @@ abstract class VARIABLE
 			SetValue($this->GetIDForIdent("cellVoltageDiffMaxToday"), 0); 
 			SetValue($this->GetIDForIdent("cellVoltageDiffMaxOverall"), 0); 
 
-
 			SetValue($this->GetIDForIdent("requestCnt"), 0); 
 			SetValue($this->GetIDForIdent("receiveCnt"), 0); 
 			SetValue($this->GetIDForIdent("crcErrorCnt"), 0);
-			SetValue($this->GetIDForIdent("instanzInactivCnt"), 0); 
+			SetValue($this->GetIDForIdent("instanzInactivCnt"), 0);
+			
+			SetValue($this->GetIDForIdent("beConnectAppUpdateCnt"), 0);
+			SetValue($this->GetIDForIdent("beConnectPlusUpdateCnt"), 0);
+			SetValue($this->GetIDForIdent("beConnectPlusUpdateHelper"), 0);
+			
 			SetValue($this->GetIDForIdent("LastDataReceived"), 0); 
 		}
 
@@ -1017,7 +1021,7 @@ abstract class VARIABLE
 			$this->RegisterVariableInteger("instanzInactivCnt", "Instanz Inactiv Cnt", "", 930);
 			$this->RegisterVariableInteger("beConnectAppUpdateCnt", "BeConnect App Update Cnt", "", 941);
 			$this->RegisterVariableInteger("beConnectPlusUpdateCnt", "BeConnect Plus Update Cnt", "", 941);
-			$this->RegisterVariableInteger("beConnectPlusUpdateHelper", "BeConnectPlus Update Helper", "", 942);
+			$this->RegisterVariableInteger("beConnectPlusUpdateHelper", "BeConnect Plus Update Helper", "", 942);
 	  		$this->RegisterVariableInteger("LastDataReceived", "Last Data Received", "~UnixTimestamp", 950);
 
 			IPS_ApplyChanges($this->archivInstanzID);
