@@ -40,6 +40,10 @@ abstract class VARIABLE
 		
 			parent::__construct($InstanceID);		// Diese Zeile nicht löschen
 
+			$instanceStatus = @IPS_GetInstance($InstanceID)["InstanceStatus"];
+			IPS_LogMessage("[" . __CLASS__ . "] - " . __FUNCTION__, sprintf("INFO: instanceStatus '%s' ", $instanceStatus));
+
+
 			if(IPS_InstanceExists($InstanceID)) {
 
 				$this->parentRootId = IPS_GetParent($this->InstanceID);
