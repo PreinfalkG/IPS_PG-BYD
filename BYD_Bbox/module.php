@@ -33,7 +33,7 @@ abstract class VARIABLE
 
 		private $logLevel = 3;
 		private $enableIPSLogOutput = false;
-		private $parentRootId;
+		private $parentRootId = 0;
 
 		public function __construct($InstanceID) {
 		
@@ -43,7 +43,7 @@ abstract class VARIABLE
 			//IPS_LogMessage("[" . __CLASS__ . "] - " . __FUNCTION__, sprintf("INFO: instanceStatus '%s' ", $instanceStatus));
 			//if(IPS_InstanceExists($InstanceID)) { }
 
-			$this->parentRootId = IPS_GetParent($this->InstanceID);
+			$this->parentRootId = @IPS_GetParent($this->InstanceID);
 			$this->logLevel = @$this->ReadPropertyInteger("LogLevel");
 			if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
 
