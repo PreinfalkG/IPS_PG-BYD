@@ -88,7 +88,7 @@ abstract class VARIABLE
 		}
 
 		public function Destroy() {
-			$this->SetUpdateInterval(0);		//Stop Auto-Update Timer
+			//$this->SetUpdateInterval(0);		//Stop Auto-Update Timer
 			parent::Destroy();					//Never delete this line!
 		}
 
