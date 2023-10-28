@@ -40,15 +40,21 @@ abstract class VARIABLE
 		
 			parent::__construct($InstanceID);		// Diese Zeile nicht löschen
 
-			$this->parentRootId = IPS_GetParent($this->InstanceID);
-			$this->archivInstanzID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}")[0];
+			if(IPS_InstanceExists($InstanceID)) {
 
-			$currentStatus = $this->GetStatus();
-			if($currentStatus == 102) {				//Instanz ist aktiv
-				$this->logLevel = $this->ReadPropertyInteger("LogLevel");
-				if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
+				$this->parentRootId = IPS_GetParent($this->InstanceID);
+				$this->archivInstanzID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}")[0];
+
+				$currentStatus = $this->GetStatus();
+				if($currentStatus == 102) {				//Instanz ist aktiv
+					$this->logLevel = $this->ReadPropertyInteger("LogLevel");
+					if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
+				} else {
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Current Status is '%s'", $currentStatus), 0); }	
+				}
+
 			} else {
-				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Current Status is '%s'", $currentStatus), 0); }	
+				IPS_LogMessage("[" . __CLASS__ . "] - " . __FUNCTION__, sprintf("INFO: Instance '%s' not exists", $InstanceID));
 			}
 		}
 
