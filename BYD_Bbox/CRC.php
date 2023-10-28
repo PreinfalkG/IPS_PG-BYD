@@ -50,7 +50,7 @@ trait CRC {
      * @param $char
      * @return $char
      */
-    function reverseChar($char) {
+    function reverseChar(string $char) {
         $byte = ord($char);
         $tmp = 0;
         for ($i = 0; $i < 8; ++$i) {
