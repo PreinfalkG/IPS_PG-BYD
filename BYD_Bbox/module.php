@@ -34,7 +34,6 @@ abstract class VARIABLE
 		private $logLevel = 3;
 		private $enableIPSLogOutput = false;
 		private $parentRootId;
-		private $archivInstanzID;
 
 		public function __construct($InstanceID) {
 		
@@ -45,8 +44,7 @@ abstract class VARIABLE
 			//if(IPS_InstanceExists($InstanceID)) { }
 
 			$this->parentRootId = IPS_GetParent($this->InstanceID);
-			$this->archivInstanzID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}")[0];
-			$this->logLevel = $this->ReadPropertyInteger("LogLevel");
+			$this->logLevel = @$this->ReadPropertyInteger("LogLevel");
 			if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
 
 		}
@@ -729,8 +727,10 @@ abstract class VARIABLE
                 IPS_SetName($varId, $varName);
 				IPS_SetPosition($varId, $position);
                 IPS_SetVariableCustomProfile($varId, $varProfile);
-				AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
-				IPS_ApplyChanges($this->archivInstanzID);
+
+				$archivInstanzID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}")[0];
+				AC_SetLoggingStatus ($archivInstanzID, $varId, true);
+				IPS_ApplyChanges($archivInstanzID);
 
             }			
 			
@@ -947,6 +947,8 @@ abstract class VARIABLE
 
 		protected function RegisterVariables() {
 
+			$archivInstanzID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}")[0];
+
 			$scriptContent = '<? $varId=$_IPS["VARIABLE"]; SetValue($varId, $_IPS["VALUE"]); BYD_CloseConnection(IPS_GetParent($varId)); ?>';
 
 			$scriptId = $this->RegisterScript("aktionsskriptOnOff", "Aktionsskript On/Off", $scriptContent, 999);
@@ -959,61 +961,61 @@ abstract class VARIABLE
 			IPS_SetVariableCustomAction($varId, $scriptId);
 
 			$varId = $this->RegisterVariableInteger("connectionState", "Connection STATE", "BYD_ConnectionState", 110);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 
 			$this->RegisterVariableString("serial_no", "SerialNo", "", 200);
 			
 			$varId = $this->RegisterVariableString("bms", "BMS", "", 201);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 			
 			$varId = $this->RegisterVariableString("bmu_a", "BMU-A", "", 202);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 			
 			$varId = $this->RegisterVariableString("bmu_b", "BMU-B", "", 203);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 			
 			$varId = $this->RegisterVariableInteger("SOC", "SOC", "BYD_Percent", 210);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 			$varId = $this->RegisterVariableFloat("cellV_Low", "Cell Voltage Min", "BYD_CellVoltage.2", 211);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 			$varId = $this->RegisterVariableFloat("cellV_High", "Cell Voltage Max", "BYD_CellVoltage.2", 212);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 			$varId = $this->RegisterVariableFloat("cellT_Low", "Cell Temp Min", "BYD_Temp.1", 213);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 			$varId = $this->RegisterVariableFloat("cellT_High", "Cell Temp Max", "BYD_Temp.1", 214);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);			
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);			
 
 			$varId = $this->RegisterVariableInteger("SOH", "SOH", "BYD_Percent", 215);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 			$varId = $this->RegisterVariableFloat("current", "Current", "BYD_Current.1", 216);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);
 
 			$varId = $this->RegisterVariableFloat("voltageBatt", "Voltage BATT", "BYD_BattVoltage.1", 217);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);			
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);			
 
 			$varId = $this->RegisterVariableFloat("voltageOut", "Voltage OUT", "BYD_BattVoltage.1", 218);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);	
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);	
 
 			$varId = $this->RegisterVariableFloat("voltageDiffCalculated", "CALC :.: Voltage Difference [Vbatt - Vout]", "BYD_BattVoltage.1", 250);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);	
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);	
 		
 			$varId = $this->RegisterVariableFloat("powerLossCalculated", "CALC :.: Power loss [(Vbatt-Vout)*Current]", "BYD_Watt.1", 251);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);	
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);	
 
 			$varId = $this->RegisterVariableFloat("cellVoltageDiff", " :: Cell Voltage Diff", "BYD_CellVoltage.2", 260);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);	
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);	
 
 			$varId = $this->RegisterVariableFloat("cellVoltageDiffMaxToday", " :: Cell Voltage Diff MAX Today", "BYD_CellVoltage.2", 261);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);	
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);	
 
 			$varId = $this->RegisterVariableFloat("cellVoltageDiffMaxOverall", " :: Cell Voltage Diff MAX Overall", "BYD_CellVoltage.2", 262);
-			AC_SetLoggingStatus ($this->archivInstanzID, $varId, true);	
+			AC_SetLoggingStatus ($archivInstanzID, $varId, true);	
 
 			$this->RegisterVariableInteger("requestCnt", "Request Cnt", "", 900);
 			$this->RegisterVariableInteger("receiveCnt", "Receive Cnt", "", 910);
@@ -1024,7 +1026,7 @@ abstract class VARIABLE
 			$this->RegisterVariableInteger("beConnectPlusUpdateHelper", "BeConnect Plus Update Helper", "", 942);
 	  		$this->RegisterVariableInteger("LastDataReceived", "Last Data Received", "~UnixTimestamp", 950);
 
-			IPS_ApplyChanges($this->archivInstanzID);
+			IPS_ApplyChanges($archivInstanzID);
 
 			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "Variables registered", 0); }
 
