@@ -68,9 +68,9 @@ abstract class VARIABLE
 			$this->RegisterPropertyBoolean("cb_PlusHistory", false);
 
 
-			$this->RegisterTimer('TimerMidnightBYD', 0, 'BYD_TimerMidnightBYD($_IPS["TARGET"]);');
-			$this->RegisterTimer('TimerAutoUpdateBYD', 0, 'BYD_TimerAutoUpdateBYD($_IPS["TARGET"]);');
-			//$this->RegisterTimer('TimerAutoUpdateBYD', 0, 'BYD_Timer_AutoUpdate($_IPS[\'TARGET\']);');
+			$this->RegisterTimer('TimerMidnight_BYD', 0, 'BYD_TimerMidnight_BYD($_IPS["TARGET"]);');
+			$this->RegisterTimer('TimerAutoUpdate_BYD', 0, 'BYD_TimerAutoUpdate_BYD($_IPS["TARGET"]);');
+			//$this->RegisterTimer('TimerAutoUpdate_BYD', 0, 'BYD_Timer_AutoUpdate($_IPS[\'TARGET\']);');
 
 		}
 
@@ -269,11 +269,11 @@ abstract class VARIABLE
 			$logMsg = sprintf("Set Midnight Timer for '%s' to %s [Interval: %s ms]", $this->InstanceID, date('d.m.Y H:i:s', $midnight), $interval);
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
 			IPS_LogMessage(__CLASS__ . " - " . __FUNCTION__, $logMsg);
-			$this->SetTimerInterval("TimerMidnightBYD", $interval);
+			$this->SetTimerInterval("TimerMidnight_BYD", $interval);
 		}
 
-		public function TimerMidnightBYD() {
-			$logMsg = "TimerMidnightBYD occurred > Reset 'cellVoltageDiffMaxToday' ...";
+		public function TimerMidnight_BYD() {
+			$logMsg = "TimerMidnight_BYD occurred > Reset 'cellVoltageDiffMaxToday' ...";
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
 			IPS_LogMessage(__CLASS__ . " - " . __FUNCTION__, $logMsg);	
 					
@@ -302,10 +302,10 @@ abstract class VARIABLE
 			} else {
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Auto-Update Timer Intervall to %s sec", $timerInterval), 0); }
 			}
-			$this->SetTimerInterval("TimerAutoUpdateBYD", $timerInterval*1000);	
+			$this->SetTimerInterval("TimerAutoUpdate_BYD", $timerInterval*1000);	
 		}
 
-		public function TimerAutoUpdateBYD() {
+		public function TimerAutoUpdate_BYD() {
 			
 			$connectionState = $this->GetConnectionState();
 
@@ -803,9 +803,9 @@ abstract class VARIABLE
 			$enable_DeleteLoggedData = false;
 			if($enable_DeleteLoggedData) {
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  ..:: DELETE LOGGED DATA :: ..', 0); }
-				$timerIntervalTemp = $this->GetTimerInterval("TimerAutoUpdateBYD");
-				$this->SetTimerInterval("TimerAutoUpdateBYD", 0);
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'STOP "TimerAutoUpdateBYD" !', 0); }
+				$timerIntervalTemp = $this->GetTimerInterval("TimerAutoUpdate_BYD");
+				$this->SetTimerInterval("TimerAutoUpdate_BYD", 0);
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'STOP "TimerAutoUpdate_BYD" !', 0); }
 
 				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("InstanceID: %s", $this->InstanceID), 0); }
 
@@ -830,8 +830,8 @@ abstract class VARIABLE
 						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Object "[%s] %s" is no Variable', $childID, IPS_GetName($childID)), 0); }	
 					}
 				}
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Restore Timer Interval for "TimerAutoUpdateBYD" to %d ms', $timerIntervalTemp), 0); }
-				$this->SetTimerInterval("TimerAutoUpdateBYD", $timerIntervalTemp);
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Restore Timer Interval for "TimerAutoUpdate_BYD" to %d ms', $timerIntervalTemp), 0); }
+				$this->SetTimerInterval("TimerAutoUpdate_BYD", $timerIntervalTemp);
 				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  - - - :: LOGGED DATA DELETED :: - - - ', 0); }
 			} else {
 				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, '  - - - :: LOGGED DATA NOT DELETED > function disabled ! ', 0); }
