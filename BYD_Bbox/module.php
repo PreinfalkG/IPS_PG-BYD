@@ -1127,7 +1127,7 @@ abstract class VARIABLE
 
 			$this->logCnt++;
 			if($this->logLevel >= LogLevel::DEBUG) {
-				$logsender = sprintf("%02d - T%2d [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
+				$logsender = sprintf("%02d-T%2d [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
 				$this->SendDebug($logsender, $daten, $format); 	
 			} else {
 				$this->SendDebug("[".__CLASS__."] - " . $name, $daten, $format); 	
