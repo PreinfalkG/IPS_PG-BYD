@@ -32,6 +32,7 @@ abstract class VARIABLE
 		const CRC_POLY = 0x8005;
 
 		private $logLevel = 3;
+		private $logCnt = 0;		
 		private $enableIPSLogOutput = false;
 		private $parentRootId = 0;
 
@@ -39,13 +40,14 @@ abstract class VARIABLE
 		
 			parent::__construct($InstanceID);		// Diese Zeile nicht löschen
 
-			//$instanceStatus = @IPS_GetInstance($InstanceID)["InstanceStatus"];
-			//IPS_LogMessage("[" . __CLASS__ . "] - " . __FUNCTION__, sprintf("INFO: instanceStatus '%s' ", $instanceStatus));
-			//if(IPS_InstanceExists($InstanceID)) { }
-
-			$this->parentRootId = @IPS_GetParent($this->InstanceID);
-			$this->logLevel = @$this->ReadPropertyInteger("LogLevel");
-			if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
+			$currentStatus = @$this->GetStatus();
+			if($currentStatus == 102) {				//Instanz ist aktiv
+				$this->parentRootId = IPS_GetParent($InstanceID);
+				$this->logLevel = $this->ReadPropertyInteger("LogLevel");
+				if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
+			} else {
+				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Current Status is '%s'", $currentStatus), 0); }	
+			}			
 
 		}
 
@@ -54,6 +56,14 @@ abstract class VARIABLE
 			parent::Create();
 
 			$this->ConnectParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
+
+			$logMsg = sprintf("Create Modul '%s [%s]'...", IPS_GetName($this->InstanceID), $this->InstanceID);
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+			IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);
+
+			$logMsg = sprintf("KernelRunlevel '%s'", IPS_GetKernelRunlevel());
+			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, $logMsg, 0); }	
+
 
 			$this->RegisterPropertyBoolean('AutoUpdate', false);
 			$this->RegisterPropertyInteger("TimerInterval", 30);		
@@ -70,14 +80,15 @@ abstract class VARIABLE
 
 			$this->RegisterTimer('TimerMidnight_BYD', 0, 'BYD_TimerMidnight_BYD($_IPS["TARGET"]);');
 			$this->RegisterTimer('TimerAutoUpdate_BYD', 0, 'BYD_TimerAutoUpdate_BYD($_IPS["TARGET"]);');
-			//$this->RegisterTimer('TimerAutoUpdate_BYD', 0, 'BYD_Timer_AutoUpdate($_IPS[\'TARGET\']);');
+
+			$this->RegisterMessage(0, IPS_KERNELMESSAGE);
 
 		}
 
 		public function Destroy() {
 			//$this->SetUpdateInterval(0);		//Stop Auto-Update Timer
-			IPS_LogMessage("[" . __CLASS__ . "] - " . __FUNCTION__, "Destroy Instance ...");
-			parent::Destroy();					//Never delete this line!
+			IPS_LogMessage(__CLASS__."_".__FUNCTION__, sprintf("Destroy Modul '%s' ...", $this->InstanceID));
+			parent::Destroy();						//Never delete this line!
 		}
 
 		public function ApplyChanges() {
@@ -87,50 +98,6 @@ abstract class VARIABLE
 			$this->logLevel = $this->ReadPropertyInteger("LogLevel");
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Log-Level to %d", $this->logLevel), 0); }
 			
-			if (IPS_GetKernelRunlevel() != KR_READY) {
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("GetKernelRunlevel is '%s'", IPS_GetKernelRunlevel()), 0); }
-				//return;
-			}
-
-			if ((float) IPS_GetKernelVersion() < 4.2) {
-				$this->RegisterMessage(0, IPS_KERNELMESSAGE);
-			} else {
-				$this->RegisterMessage(0, IPS_KERNELSTARTED);
-				$this->RegisterMessage(0, IPS_KERNELSHUTDOWN);
-			}
-
-			$this->RegisterMessage($this->InstanceID, IM_CONNECT);
-			$this->RegisterMessage($this->InstanceID, IM_DISCONNECT);
-			$this->RegisterMessage($this->InstanceID, IM_CHANGESTATUS);
-			$this->RegisterMessage($this->InstanceID, IM_CHANGESETTINGS);
-			$this->RegisterMessage($this->InstanceID, FM_CONNECT);
-			$this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
-
-			$conID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-			if($conID > 0) {
-
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Instance ConnectionID is '%s' >> RegisterMessages for this Connection ...", $conID), 0); }
-				
-				$this->RegisterMessage($conID , IM_CONNECT);
-				$this->RegisterMessage($conID , IM_DISCONNECT);		
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("RegisterMessage 'IM_CONNECT' and 'IM_DISCONNECT' for Instanz '%s'", $conID), 0); }	
-
-				$this->RegisterMessage($conID , IM_CHANGESTATUS);
-				$this->RegisterMessage($conID , IM_CHANGESETTINGS);		
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("RegisterMessage 'IM_CHANGESTATUS' and 'IM_CHANGESETTINGS' for Instanz '%s'", $conID), 0); }	
-
-				$this->RegisterMessage($conID , IS_ACTIVE);
-				$this->RegisterMessage($conID , IS_INACTIVE);		
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("RegisterMessage 'IS_ACTIVE' and 'IS_INACTIVE' for Instanz '%s'", $conID), 0); }	
-
-				$this->RegisterMessage($conID , FM_CONNECT);
-				$this->RegisterMessage($conID , FM_DISCONNECT);		
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("RegisterMessage 'FM_CONNECT' and 'FM_DISCONNECT' for Instanz '%s'", $conID), 0); }	
-
-			} else {
-				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Instance ConnectionID is '%s'", $conID), 0); }	
-			}
-	
 
 			$this->RegisterProfiles();
 			$this->RegisterVariables();  
@@ -153,9 +120,9 @@ abstract class VARIABLE
 		}
 
 		public function MessageSink($TimeStamp, $SenderID, $Message, $Data) {
- 			$logMsg = sprintf("Message from SenderID '%s' with Message '%s'\r\n Data: %s", $SenderID, $Message, print_r($Data, true));
-			//IPS_LogMessage("MessageSink", $logMsg);
-			if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+			$logMsg = sprintf("TimeStamp: %s | SenderID: %s | Message: %s | Data: %s", $TimeStamp, $SenderID, $Message, json_encode($Data));
+			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+			//IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);
 		}
 
 
@@ -1157,7 +1124,11 @@ abstract class VARIABLE
 		}
 
 		protected function AddLog($name, $daten, $format) {
-			$this->SendDebug("[" . __CLASS__ . "] - " . $name, $daten, $format); 	
+			//$this->SendDebug("[" . __CLASS__ . "] - " . $name, $daten, $format); 	
+
+			$this->logCnt++;
+			$logsender = sprintf("#%02d {%2d} [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
+			$this->SendDebug($logsender, $daten, $format); 				
 	
 			if($this->enableIPSLogOutput) {
 				if($format == 0) {

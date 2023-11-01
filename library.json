@@ -1,12 +1,12 @@
 {
     "id": "{B0E7168C-42AE-B57C-0CBF-CCCB08EA1022}",
-    "name": "BYD B-Box Premium HVS/HVM",
+    "name": "IPS_PG BYD B-Box Premium HVS/HVM",
     "author": "PreinfalkG",
     "url": "",
     "compatibility": {
         "version": "6.4"
     },
-    "version": "1.29",
-    "build": 20231028,
-    "date": 1698460289
+    "version": "1.30",
+    "build": 20231101,
+    "date": 1698838719
 }
