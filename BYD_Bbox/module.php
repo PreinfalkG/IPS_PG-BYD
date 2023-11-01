@@ -1124,17 +1124,20 @@ abstract class VARIABLE
 		}
 
 		protected function AddLog($name, $daten, $format) {
-			//$this->SendDebug("[" . __CLASS__ . "] - " . $name, $daten, $format); 	
 
 			$this->logCnt++;
-			$logsender = sprintf("#%02d {%2d} [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
-			$this->SendDebug($logsender, $daten, $format); 				
-	
+			if($this->logLevel >= LogLevel::DEBUG) {
+				$logsender = sprintf("%02d | T%2d  [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
+				$this->SendDebug($logsender, $daten, $format); 	
+			} else {
+				$this->SendDebug("[".__CLASS__."] - " . $name, $daten, $format); 	
+			}
+		
 			if($this->enableIPSLogOutput) {
 				if($format == 0) {
-					IPS_LogMessage("[" . __CLASS__ . "] - " . $name, $daten);	
+					IPS_LogMessage("[".__CLASS__."] - " . $name, $daten);	
 				} else {
-					IPS_LogMessage("[" . __CLASS__ . "] - " . $name, $this->String2Hex($daten));			
+					IPS_LogMessage("[".__CLASS__."] - " . $name, $this->String2Hex($daten));			
 				}
 			}
 		}
