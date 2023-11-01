@@ -230,14 +230,14 @@ class BYD_Bbox extends IPSModule {
 		$interval = $diff * 1000;
 		$logMsg = sprintf("Set Midnight Timer for '%s' to %s [Interval: %s ms]", $this->InstanceID, date('d.m.Y H:i:s', $midnight), $interval);
 		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
-		IPS_LogMessage(__CLASS__ . " - " . __FUNCTION__, $logMsg);
+		IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);
 		$this->SetTimerInterval("TimerMidnight_BYD", $interval);
 	}
 
 	public function TimerMidnight_BYD() {
 		$logMsg = "TimerMidnight_BYD occurred > Reset 'cellVoltageDiffMaxToday' ...";
 		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
-		IPS_LogMessage(__CLASS__ . " - " . __FUNCTION__, $logMsg);	
+		IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);	
 				
 		SetValue($this->GetIDForIdent("cellVoltageDiffMaxToday"), 0); 
 
