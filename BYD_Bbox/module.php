@@ -32,36 +32,28 @@ class BYD_Bbox extends IPSModule {
 	private $logLevel = 3;
 	private $logCnt = 0;		
 	private $enableIPSLogOutput = false;
-	private $parentRootId = 0;
 
 
 	public function __construct($InstanceID) {
 	
 		parent::__construct($InstanceID);		// Diese Zeile nicht löschen
 
-		$currentStatus = @$this->GetStatus();
-		if($currentStatus == 102) {				//Instanz ist aktiv
-			$this->parentRootId = IPS_GetParent($InstanceID);
-			$this->logLevel = $this->ReadPropertyInteger("LogLevel");
-			if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel), 0); }
-		} else {
-			if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Current Status is '%s'", $currentStatus), 0); }	
-		}			
-
+		$this->logLevel = @$this->ReadPropertyInteger("LogLevel"); 
+		if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, sprintf("Log-Level is %d", $this->logLevel)); }		
 	}
 
 	public function Create() {
-		//Never delete this line!
-		parent::Create();
+		
+		parent::Create();						//Never delete this line!
 
 		$this->ConnectParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
 
 		$logMsg = sprintf("Create Modul '%s [%s]'...", IPS_GetName($this->InstanceID), $this->InstanceID);
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg); }
 		IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);
 
 		$logMsg = sprintf("KernelRunlevel '%s'", IPS_GetKernelRunlevel());
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, $logMsg, 0); }	
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, $logMsg); }	
 
 
 		$this->RegisterPropertyBoolean('AutoUpdate', false);
@@ -94,7 +86,7 @@ class BYD_Bbox extends IPSModule {
 		parent::ApplyChanges();
 
 		$this->logLevel = $this->ReadPropertyInteger("LogLevel");
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Log-Level to %d", $this->logLevel), 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Log-Level to %d", $this->logLevel)); }
 		
 
 		$this->RegisterProfiles();
@@ -117,20 +109,20 @@ class BYD_Bbox extends IPSModule {
 
 	public function MessageSink($TimeStamp, $SenderID, $Message, $Data) {
 		$logMsg = sprintf("TimeStamp: %s | SenderID: %s | Message: %s | Data: %s", $TimeStamp, $SenderID, $Message, json_encode($Data));
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, $logMsg); }
 		//IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);
 	}
 
 
 	public function RequestBeConnectAppData1(string $Text) {
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect App Data -  SerialNr and Fireware Version(s)...", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect App Data -  SerialNr and Fireware Version(s)..."); }
 		$reqData = array(0x01, 0x03, 0x00, 0x00, 0x00, 0x13, 0x04, 0x07);
 		$reqData = implode(array_map("chr", $reqData));
 		$this->SendData($reqData);
 	}
 
 	public function RequestBeConnectAppData2(string $Text) {
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect App Data - Measurement Data (Voltages, Current, Temp, SOC, SOH) ...", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect App Data - Measurement Data (Voltages, Current, Temp, SOC, SOH) ..."); }
 		$reqData = array(0x01, 0x03, 0x05, 0x00, 0x00, 0x19, 0x84, 0xcc);
 		$reqData = implode(array_map("chr", $reqData));
 		$this->SendData($reqData);
@@ -138,7 +130,7 @@ class BYD_Bbox extends IPSModule {
 
 
 	public function RequestBeConnectPlusSystemInfo(string $Text) {
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect Plus - System Info ...", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect Plus - System Info ..."); }
 		//$reqData = array(0x01, 0x03, 0x05, 0x00, 0x00, 0x19, 0x84, 0xcc);
 		//$reqData = implode(array_map("chr", $reqData));
 		//$this->SendData($reqData);
@@ -146,7 +138,7 @@ class BYD_Bbox extends IPSModule {
 
 
 	public function RequestBeConnectPlusDiagnosis(string $Text) {
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect Plus - Diagnosis Data ...", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect Plus - Diagnosis Data ..."); }
 
 		$reqData = array(0x02, 0x04, 0x05, 0xB4, 0x01, 0x03, 0x03, 0x08, 0x01, 0x01, 0x04, 0x02);		//connect
 		//$this->SendData(implode(array_map("chr", $reqData)));
@@ -182,7 +174,7 @@ class BYD_Bbox extends IPSModule {
 	}
 
 	public function RequestBeConnectPlusHistory(string $Text) {
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect Plus - History Data ...", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Request BeConnect Plus - History Data ..."); }
 		//$reqData = array(0x01, 0x03, 0x05, 0x00, 0x00, 0x19, 0x84, 0xcc);
 		//$reqData = implode(array_map("chr", $reqData));
 		//$this->SendData($reqData);
@@ -200,15 +192,15 @@ class BYD_Bbox extends IPSModule {
 					$this->SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($data))));
 					SetValue($this->GetIDForIdent("requestCnt"), GetValue($this->GetIDForIdent("requestCnt")) + 1);  	
 				} else {
-					if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Connection NOT activ [Status=%s]", $connectionState), 0); }
+					if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Connection NOT activ [Status=%s]", $connectionState)); }
 				}
 			} else {
 				SetValue($this->GetIDForIdent("instanzInactivCnt"), GetValue($this->GetIDForIdent("instanzInactivCnt")) + 1);
-				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Instanz '%s - [%s]' not activ [Status=%s]", $this->InstanceID, IPS_GetName($this->InstanceID), $currentStatus), 0); }
+				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Instanz '%s - [%s]' not activ [Status=%s]", $this->InstanceID, IPS_GetName($this->InstanceID), $currentStatus)); }
 				$this->CloseConnection();
 			}
 		} else {
-			if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, "Master-Switch is OFF > SendData() canceled > Check Connection Closed ...", 0); }
+			if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, "Master-Switch is OFF > SendData() canceled > Check Connection Closed ..."); }
 			$this->CloseConnection();
 		}
 
@@ -229,19 +221,19 @@ class BYD_Bbox extends IPSModule {
 		$diff = $midnight - time();
 		$interval = $diff * 1000;
 		$logMsg = sprintf("Set Midnight Timer for '%s' to %s [Interval: %s ms]", $this->InstanceID, date('d.m.Y H:i:s', $midnight), $interval);
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg); }
 		IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);
 		$this->SetTimerInterval("TimerMidnight_BYD", $interval);
 	}
 
 	public function TimerMidnight_BYD() {
 		$logMsg = "TimerMidnight_BYD occurred > Reset 'cellVoltageDiffMaxToday' ...";
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg, 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, $logMsg); }
 		IPS_LogMessage(__CLASS__."_".__FUNCTION__, $logMsg);	
 				
 		SetValue($this->GetIDForIdent("cellVoltageDiffMaxToday"), 0); 
 
-		$parentId = $this->GetCategoryID("Diagnosis", "Diagnosis", $this->parentRootId);
+		$parentId = $this->GetCategoryID("Diagnosis", "Diagnosis", IPS_GetParent($this->InstanceID));
 		if($parentId !== false) {
 			$varId = @IPS_GetObjectIDByIdent("cellDriftMaxToday", $parentId);
 					if($varId !== false) {
@@ -257,12 +249,12 @@ class BYD_Bbox extends IPSModule {
 
 	public function SetUpdateInterval(int $timerInterval) {
 		if ($timerInterval == 0) {  
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Auto-Update stopped [TimerIntervall = 0]", 0); }	
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Auto-Update stopped [TimerIntervall = 0]"); }	
 		}else if ($timerInterval < 5) { 
 			$timerInterval = 5; 
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Auto-Update Timer Intervall to %s sec", $timerInterval), 0); }	
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Auto-Update Timer Intervall to %s sec", $timerInterval)); }	
 		} else {
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Auto-Update Timer Intervall to %s sec", $timerInterval), 0); }
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Set Auto-Update Timer Intervall to %s sec", $timerInterval)); }
 		}
 		$this->SetTimerInterval("TimerAutoUpdate_BYD", $timerInterval*1000);	
 	}
@@ -273,7 +265,7 @@ class BYD_Bbox extends IPSModule {
 
 		$masterOnOff = GetValue($this->GetIDForIdent("masterOnOff"));
 		if($masterOnOff) {
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Initiate update ...", 0); }
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Initiate update ..."); }
 
 			if($this->ReadPropertyBoolean("cb_AppData1")) 			{ $this->RequestBeConnectAppData1(""); IPS_Sleep(250); }
 			if($this->ReadPropertyBoolean("cb_AppData2")) 			{ $this->RequestBeConnectAppData2(""); IPS_Sleep(250); }
@@ -296,13 +288,13 @@ class BYD_Bbox extends IPSModule {
 				SetValue($this->GetIDForIdent("beConnectPlusUpdateCnt"), GetValue($this->GetIDForIdent("beConnectPlusUpdateCnt")) + 1);  
 				
 			} else {
-				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Skip BeConnect Plus Update [%d]", $beConnectPlusUpdateHelper), 0); }
+				if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("Skip BeConnect Plus Update [%d]", $beConnectPlusUpdateHelper)); }
 				SetValue($this->GetIDForIdent("beConnectPlusUpdateHelper"), $beConnectPlusUpdateHelper); 
 			}
 
 					
 		} else {
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("AutoUpate CANCELED > Master Swich is OFF > Connection State '%s' ...", $this->GetConnectionState()), 0); }
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("AutoUpate CANCELED > Master Swich is OFF > Connection State '%s' ...", $this->GetConnectionState())); }
 			$this->CloseConnection();
 		}
 					
@@ -315,7 +307,7 @@ class BYD_Bbox extends IPSModule {
 			$connectionState = IPS_GetInstance($conID)['InstanceStatus'];
 		} else {
 			$connectionState = 0;
-			if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Instanz '%s [%s]' has NO Gateway/Connection [ConnectionID=%s]", $this->InstanceID, IPS_GetName($this->InstanceID), $conID), 0); }
+			if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("Instanz '%s [%s]' has NO Gateway/Connection [ConnectionID=%s]", $this->InstanceID, IPS_GetName($this->InstanceID), $conID)); }
 		}
 		SetValue($this->GetIDForIdent("connectionState"), $connectionState);
 		return $connectionState;
@@ -330,7 +322,7 @@ class BYD_Bbox extends IPSModule {
 			IPS_Sleep(150);
 			$connectionState = IPS_GetInstance($conID)['InstanceStatus'];
 			SetValue($this->GetIDForIdent("connectionState"), $connectionState);
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("'%s [%s]' InstanceStatus is now '%s'", $conID, IPS_GetName($conID), $connectionState), 0); }
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("'%s [%s]' InstanceStatus is now '%s'", $conID, IPS_GetName($conID), $connectionState)); }
 		}
 		return $connectionState;
 	}
@@ -344,7 +336,7 @@ class BYD_Bbox extends IPSModule {
 			IPS_Sleep(150);
 			$connectionState = IPS_GetInstance($conID)['InstanceStatus'];
 			SetValue($this->GetIDForIdent("connectionState"), $connectionState);
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("'%s [%s]' InstanceStatus is now '%s'", $conID, IPS_GetName($conID), $connectionState), 0); }
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf("'%s [%s]' InstanceStatus is now '%s'", $conID, IPS_GetName($conID), $connectionState)); }
 		}
 		return $connectionState;
 	}
@@ -370,12 +362,12 @@ class BYD_Bbox extends IPSModule {
 			$crcIST = $this->crc16($dataCrcCheck, self::CRC_POLY, self::CRC_INIT, self::CRC_XOROUT, true, true);
 			if($crcIST != $crcSOLL) {
 				SetValue($this->GetIDForIdent("crcErrorCnt"), GetValue($this->GetIDForIdent("crcErrorCnt")) + 1);  
-				if($this->logLevel >= LogLevel::ERROR) { $this->AddLog(__FUNCTION__, sprintf("CRC Error [IST: %02X | SOLL: %02X]", $crcIST, $crcSOLL), 0); }
-				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("CRC Details [init: %02X | xorout: %02X | poly: %02X]", self::CRC_INIT, self::CRC_XOROUT, self::CRC_POLY), 0); }
-				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("rawData     : %s", $this->String2Hex($rawData)), 0); }
-				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("dataCrcCheck: %s", $this->String2Hex($dataCrcCheck)), 0); }
+				if($this->logLevel >= LogLevel::ERROR) { $this->AddLog(__FUNCTION__, sprintf("CRC Error [IST: %02X | SOLL: %02X]", $crcIST, $crcSOLL)); }
+				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("CRC Details [init: %02X | xorout: %02X | poly: %02X]", self::CRC_INIT, self::CRC_XOROUT, self::CRC_POLY)); }
+				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("rawData     : %s", $this->String2Hex($rawData))); }
+				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("dataCrcCheck: %s", $this->String2Hex($dataCrcCheck))); }
 			} else {
-				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("DataLen: 0x%02X , CRC ok [IST: 0x%02X | SOLL: 0x%02X]", $dataLen, $crcIST, $crcSOLL), 0); }
+				if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("DataLen: 0x%02X , CRC ok [IST: 0x%02X | SOLL: 0x%02X]", $dataLen, $crcIST, $crcSOLL)); }
 
 				if(($byteArray[38] == 0) AND ($byteArray[39] == 0)) {       
 					$this->ExtractDiagnosis_Part4($byteArray); 
@@ -415,13 +407,13 @@ class BYD_Bbox extends IPSModule {
 				$crcIST = $this->crc16($dataCrcCheck, self::CRC_POLY, self::CRC_INIT, self::CRC_XOROUT, true, true);
 				if($crcIST != $crcSOLL) {
 					SetValue($this->GetIDForIdent("crcErrorCnt"), GetValue($this->GetIDForIdent("crcErrorCnt")) + 1);  
-					if($this->logLevel >= LogLevel::ERROR) { $this->AddLog(__FUNCTION__, sprintf("CRC Error [IST: %02X | SOLL: %02X]", $crcIST, $crcSOLL), 0); }
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("CRC Details [init: %02X | xorout: %02X | poly: %02X]", self::CRC_INIT, self::CRC_XOROUT, self::CRC_POLY), 0); }
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("rawData     : %s", $this->String2Hex($rawData)), 0); }
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("dataCrcCheck: %s", $this->String2Hex($dataCrcCheck)), 0); }
+					if($this->logLevel >= LogLevel::ERROR) { $this->AddLog(__FUNCTION__, sprintf("CRC Error [IST: %02X | SOLL: %02X]", $crcIST, $crcSOLL)); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("CRC Details [init: %02X | xorout: %02X | poly: %02X]", self::CRC_INIT, self::CRC_XOROUT, self::CRC_POLY)); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("rawData     : %s", $this->String2Hex($rawData))); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("dataCrcCheck: %s", $this->String2Hex($dataCrcCheck))); }
 				} else {
 
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("DataLen: 0x%02X , CRC ok [IST: 0x%02X | SOLL: 0x%02X]", $dataLen, $crcIST, $crcSOLL), 0); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("DataLen: 0x%02X , CRC ok [IST: 0x%02X | SOLL: 0x%02X]", $dataLen, $crcIST, $crcSOLL)); }
 
 					$serialNumber = array_slice($byteArray, 0, 19);
 					$unkown1 = array_slice($byteArray, 19, 5);
@@ -431,22 +423,22 @@ class BYD_Bbox extends IPSModule {
 					$unkown2 = array_slice($byteArray, 30);
 
 					$serialNumber = implode(array_map("chr", $serialNumber));
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'serialNumber' : %s", $serialNumber), 0); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'serialNumber' : %s", $serialNumber)); }
 					SetValue($this->GetIDForIdent("serial_no"), $serialNumber);  
 
 					$bmu_aTXT = sprintf("%s.%s", $bmu_a[0], $bmu_a[1]);
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'BMU-A' : %s [0x%02X 0x%02X @Position 24 ]", $bmu_aTXT, $bmu_a[0], $bmu_a[1]), 0); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'BMU-A' : %s [0x%02X 0x%02X @Position 24 ]", $bmu_aTXT, $bmu_a[0], $bmu_a[1])); }
 					SetValue($this->GetIDForIdent("bmu_a"), $bmu_aTXT);  
 
 					$bmu_bTXT = sprintf("%s.%s", $bmu_b[0], $bmu_b[1]);
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'BMU-B' : %s [0x%02X 0x%02X @Position 26 ]", $bmu_bTXT, $bmu_b[0], $bmu_b[1]), 0); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'BMU-B' : %s [0x%02X 0x%02X @Position 26 ]", $bmu_bTXT, $bmu_b[0], $bmu_b[1])); }
 					SetValue($this->GetIDForIdent("bmu_b"), $bmu_bTXT);  
 
 					$bmsTxt = sprintf("%s.%s", $bms[0], $bms[1]);
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'BMS' : %s [0x%02X 0x%02X @Position 28]", $bmsTxt, $bms[0], $bms[1]), 0); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extracted 'BMS' : %s [0x%02X 0x%02X @Position 28]", $bmsTxt, $bms[0], $bms[1])); }
 					SetValue($this->GetIDForIdent("bms"), $bmsTxt);  
 
-					if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "SerialNr and Fireware Version(s) received/extracted/saved", 0); }
+					if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "SerialNr and Fireware Version(s) received/extracted/saved"); }
 				}	
 
 			} else if($dataLen == 50) {
@@ -455,13 +447,13 @@ class BYD_Bbox extends IPSModule {
 				$crcIST = $this->crc16($dataCrcCheck, self::CRC_POLY, self::CRC_INIT, self::CRC_XOROUT, true, true);
 				if($crcIST != $crcSOLL) {
 					SetValue($this->GetIDForIdent("crcErrorCnt"), GetValue($this->GetIDForIdent("crcErrorCnt")) + 1);  
-					if($this->logLevel >= LogLevel::ERROR) { $this->AddLog(__FUNCTION__, sprintf("CRC Error [IST: %02X | SOLL: %02X]", $crcIST, $crcSOLL), 0); }
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("CRC Details [init: %02X | xorout: %02X | poly: %02X]", self::CRC_INIT, self::CRC_XOROUT, self::CRC_POLY), 0); }
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("rawData     : %s", $this->String2Hex($rawData)), 0); }
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("dataCrcCheck: %s", $this->String2Hex($dataCrcCheck)), 0); }
+					if($this->logLevel >= LogLevel::ERROR) { $this->AddLog(__FUNCTION__, sprintf("CRC Error [IST: %02X | SOLL: %02X]", $crcIST, $crcSOLL)); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("CRC Details [init: %02X | xorout: %02X | poly: %02X]", self::CRC_INIT, self::CRC_XOROUT, self::CRC_POLY)); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("rawData     : %s", $this->String2Hex($rawData))); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("dataCrcCheck: %s", $this->String2Hex($dataCrcCheck))); }
 				} else {
 
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("DataLen: 0x%02X , CRC ok [IST: 0x%02X | SOLL: 0x%02X]", $dataLen, $crcIST, $crcSOLL), 0); }
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("DataLen: 0x%02X , CRC ok [IST: 0x%02X | SOLL: 0x%02X]", $dataLen, $crcIST, $crcSOLL)); }
 
 					$this->ExtractUnsignedValue($byteArray, 0, "SOC", 1);
 					$cellVoltageHigh = $this->ExtractUnsignedValue($byteArray, 2, "cellV_High", 100);
@@ -492,11 +484,11 @@ class BYD_Bbox extends IPSModule {
 						SetValue( $this->GetIDForIdent("cellVoltageDiffMaxOverall"), round($cellVoltageDiff,3) ); 
 					}
 
-					if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved", 0); }
+					if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved"); }
 				}
 
 			} else if($this->startsWith($rawData,"\x01\x03\x82\x00")) {
-				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive Part_1: %s", $this->String2Hex($rawData)), 0); }
+				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive Part_1: %s", $this->String2Hex($rawData))); }
 
 				//128 Cell Voltage
 				// 64 Cell Temp
@@ -509,35 +501,35 @@ class BYD_Bbox extends IPSModule {
 				$crcByte1 = array_pop($byteArray);
 				$crcByte2 = array_pop($byteArray);	
 
-				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive : [%d][%d][%d]", $firstByte1,$firstByte2,$dataLen), 0); }
+				if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive : [%d][%d][%d]", $firstByte1,$firstByte2,$dataLen)); }
 
 
 				$arrLen = count($byteArray);
 				for($i=100; $i<$arrLen; $i = $i+2) {
 					$cellVoltage = $this->ExtractUnsignedValue($byteArray, $i, "cellV_".$i, 1);
-					//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_received [%s/%s] : %s", $i, $arrLen, $cellVoltage ), 0); }
+					//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_received [%s/%s] : %s", $i, $arrLen, $cellVoltage )); }
 				}
 
 			} else {
 				//$this->AddLog(__FUNCTION__, sprintf("dataLen: %s", $dataLen), 0);
 				//$this->AddLog(__FUNCTION__, sprintf("data: %s", $this->ByteArr2HexStr($byteArray)), 0);
 				//$this->AddLog(__FUNCTION__, sprintf("crc: %s", $this->ByteArr2HexStr($crc)), 0);
-				//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("38 bzw. 50 bytes expected but %d bytes received", $dataLen), 0); }					
-				//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive : %s", $this->String2Hex($rawData)), 0); }
+				//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("38 bzw. 50 bytes expected but %d bytes received", $dataLen)); }					
+				//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive : %s", $this->String2Hex($rawData))); }
 			}
 
 		} else {
-			//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, "the received data does not start with '0x01 0x03'", 0); }
-			//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive : %s", $this->String2Hex($rawData)), 0); }
+			//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, "the received data does not start with '0x01 0x03'"); }
+			//if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, sprintf("_receive : %s", $this->String2Hex($rawData))); }
 		}
 
 	}
 
 
 	protected function ExtractDiagnosis_Part1($byteArray) {
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray)), 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray))); }
 		
-		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", $this->parentRootId);
+		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", IPS_GetParent($this->InstanceID));
 
 
 		$cellV_Hight = $this->ExtractSaveValue($byteArray, 0, 2, 1, $categoryId, "cellV_High", "Cell Voltage Max", VARIABLE::TYPE_INTEGER, 0, "BYD_CellVoltage"); 
@@ -582,13 +574,13 @@ class BYD_Bbox extends IPSModule {
 			$this->ExtractSaveValue($byteArray, $i, 2, 1, $categoryIdCellVoltages, "cellV_".$cellCnt, "Cell Voltage No. " . $cellCnt, VARIABLE::TYPE_INTEGER, $cellCnt, "BYD_CellVoltage"); 
 		}
 
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved"); }
 	}
 
 	protected function ExtractDiagnosis_Part2($byteArray) {
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray)), 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray))); }
 
-		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", $this->parentRootId);
+		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", IPS_GetParent($this->InstanceID));
 		$categoryIdCellVoltages = $this->GetCategoryID("cellVoltages", "Cell Voltages", $categoryId);
 		$arrLen = count($byteArray);
 		$cellCnt = 16;
@@ -596,13 +588,13 @@ class BYD_Bbox extends IPSModule {
 			$cellCnt++;
 			$this->ExtractSaveValue($byteArray, $i, 2, 1, $categoryIdCellVoltages, "cellV_".$cellCnt, "Cell Voltage No. " . $cellCnt, VARIABLE::TYPE_INTEGER, $cellCnt, "BYD_CellVoltage"); 
 		}
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved"); }
 	}
 
 	protected function ExtractDiagnosis_Part3($byteArray) {
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray)), 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray))); }
 
-		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", $this->parentRootId);
+		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", IPS_GetParent($this->InstanceID));
 		$categoryIdCellVoltages = $this->GetCategoryID("cellVoltages", "Cell Voltages", $categoryId);
 		$arrLen = count($byteArray);
 		$cellCnt = 80;
@@ -618,13 +610,13 @@ class BYD_Bbox extends IPSModule {
 			$cellCnt++;
 			$this->ExtractSaveValue($byteArray, $i, 1, 1, $categoryIdCellTemperatures, "cellT_".$cellCnt, "Cell Temp No. " . $cellCnt, VARIABLE::TYPE_INTEGER, $cellCnt, "BYD_Temp"); 
 		}
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved"); }
 	}
 
 	protected function ExtractDiagnosis_Part4($byteArray) {
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray)), 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Byte Array Count: %d", count($byteArray))); }
 
-		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", $this->parentRootId);
+		$categoryId = $this->GetCategoryID("Diagnosis", "Diagnosis", IPS_GetParent($this->InstanceID));
 		$categoryIdCellTemperatures = $this->GetCategoryID("cellTemperatures", "Cell Temperatures", $categoryId);
 		$arrLen = count($byteArray);
 		$cellCnt = 30;
@@ -632,7 +624,7 @@ class BYD_Bbox extends IPSModule {
 			$cellCnt++;
 			$this->ExtractSaveValue($byteArray, $i, 1, 1, $categoryIdCellTemperatures, "cellT_".$cellCnt, "Cell Temp No. " . $cellCnt, VARIABLE::TYPE_INTEGER, $cellCnt, "BYD_Temp"); 
 		}
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "Data received/extracted/saved"); }
 	}
 
 	protected function GetCategoryID($identName, $categoryName, $parentId) {
@@ -663,11 +655,11 @@ class BYD_Bbox extends IPSModule {
 			}
 
 			$value = $rawValue / $divider;
-			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Bytes 0x%02X 0x%02X @Position %d [RawValue = %s | %b] > Set Value '%s' to Ident '%s'", $byte1, $byte2, $firstByte, $rawValue, $rawValue, $value, $varIdent), 0); }
+			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Bytes 0x%02X 0x%02X @Position %d [RawValue = %s | %b] > Set Value '%s' to Ident '%s'", $byte1, $byte2, $firstByte, $rawValue, $rawValue, $value, $varIdent)); }
 		} else {
 			$rawValue = $byteArray[$firstByte];
 			$value = $rawValue / $divider;
-			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Byte 0x%02X @Position %d [RawValue = %s] > Set Value '%s' to Ident '%s'", $rawValue, $firstByte, $rawValue, $rawValue, $value, $varIdent), 0); }
+			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Byte 0x%02X @Position %d [RawValue = %s] > Set Value '%s' to Ident '%s'", $rawValue, $firstByte, $rawValue, $rawValue, $value, $varIdent)); }
 		}
 		
 		$this->SaveVariableValue($value, $parentId, $varIdent, $varName, $varType, $position, $varProfile);
@@ -681,7 +673,7 @@ class BYD_Bbox extends IPSModule {
 		if($varId === false) {
 
 			if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, 
-				sprintf("Create IPS-Variable :: Type: %d | Ident: %s | Profile: %s | Name: %s", $varType, $varIdent, $varProfile, $varName), 0); }	
+				sprintf("Create IPS-Variable :: Type: %d | Ident: %s | Profile: %s | Name: %s", $varType, $varIdent, $varProfile, $varName)); }	
 
 			$varId = IPS_CreateVariable($varType);
 			IPS_SetParent($varId, $parentId);
@@ -715,7 +707,7 @@ class BYD_Bbox extends IPSModule {
 		$rawValue = (($byte1<<8) + $byte2 );
 
 		$value = $rawValue / $divider;
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Bytes 0x%02X 0x%02X @Position %d [RawValue = %s | %b] > Set Value '%s' to Ident '%s'", $byte1, $byte2, $first_byte, $rawValue, $rawValue, $value, $varIdent), 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Bytes 0x%02X 0x%02X @Position %d [RawValue = %s | %b] > Set Value '%s' to Ident '%s'", $byte1, $byte2, $first_byte, $rawValue, $rawValue, $value, $varIdent)); }
 		SetValue($this->GetIDForIdent($varIdent), $value);  
 		return $value;
 	}
@@ -730,7 +722,7 @@ class BYD_Bbox extends IPSModule {
 		if (0x8000 & $rawValue) { $rawValue = - (0xFFFF - $rawValue + 1); }
 
 		$value = $rawValue / $divider;
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Bytes 0x%02X 0x%02X @Position %d [RawValue = %s | %b] > Set Value '%s' to Ident '%s'", $byte1, $byte2, $first_byte, $rawValue, $rawValue, $value, $varIdent), 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("extract Bytes 0x%02X 0x%02X @Position %d [RawValue = %s | %b] > Set Value '%s' to Ident '%s'", $byte1, $byte2, $first_byte, $rawValue, $rawValue, $value, $varIdent)); }
 		SetValue($this->GetIDForIdent($varIdent), $value);  
 		return $value;
 	}
@@ -738,7 +730,7 @@ class BYD_Bbox extends IPSModule {
 
 	public function ResetCalculationsAndCounter(string $source) {
 
-		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "RESET Calculation and Counter Values", 0); }
+		if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, "RESET Calculation and Counter Values"); }
 
 		SetValue($this->GetIDForIdent("connectionState"), 0); 
 
@@ -769,30 +761,30 @@ class BYD_Bbox extends IPSModule {
 			$this->SetTimerInterval("TimerAutoUpdate_BYD", 0);
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'STOP "TimerAutoUpdate_BYD" !', 0); }
 
-			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("InstanceID: %s", $this->InstanceID), 0); }
+			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("InstanceID: %s", $this->InstanceID)); }
 
 			$archiveControlID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0]; 
-			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Archiv Conrol ID: %s", $archiveControlID), 0); }
+			if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf("Archiv Conrol ID: %s", $archiveControlID)); }
 
 			$childrenIDs = IPS_GetChildrenIDs($this->InstanceID);
 				foreach($childrenIDs as $childID) {
 					if (IPS_GetObject($childID)["ObjectType"] == 2) {
 					$loggingStatus = AC_GetLoggingStatus($archiveControlID, $childID);
 					if($loggingStatus) {
-						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is TRUE', $childID, IPS_GetName($childID)), 0); }
+						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is TRUE', $childID, IPS_GetName($childID))); }
 						$result = AC_DeleteVariableData($archiveControlID, $childID, 0, time());
-						if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('%d Logged Values deleted for Variable "[%s] %s"', $result, $childID, IPS_GetName($childID)), 0); }
+						if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('%d Logged Values deleted for Variable "[%s] %s"', $result, $childID, IPS_GetName($childID))); }
 						$result = AC_ReAggregateVariable($archiveControlID, $childID);
-						if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Start Reaggregation for Variable "[%s] %s" [result: %b]', $childID, IPS_GetName($childID), $result), 0); }
+						if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Start Reaggregation for Variable "[%s] %s" [result: %b]', $childID, IPS_GetName($childID), $result)); }
 						IPS_Sleep(150);
 					} else {
-						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is FALSE', $childID, IPS_GetName($childID)), 0); }
+						if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Logging Status for Variable "[%s] %s" is FALSE', $childID, IPS_GetName($childID))); }
 					}
 				} else {
-					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Object "[%s] %s" is no Variable', $childID, IPS_GetName($childID)), 0); }	
+					if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, sprintf('Object "[%s] %s" is no Variable', $childID, IPS_GetName($childID))); }	
 				}
 			}
-			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Restore Timer Interval for "TimerAutoUpdate_BYD" to %d ms', $timerIntervalTemp), 0); }
+			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('Restore Timer Interval for "TimerAutoUpdate_BYD" to %d ms', $timerIntervalTemp)); }
 			$this->SetTimerInterval("TimerAutoUpdate_BYD", $timerIntervalTemp);
 			if($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, '  - - - :: LOGGED DATA DELETED :: - - - ', 0); }
 		} else {
@@ -904,7 +896,7 @@ class BYD_Bbox extends IPSModule {
 			IPS_SetVariableProfileValues("BYD_Percent.1", 0, 100, 0);
 		} 			
 
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "Variable Profiles registered", 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "Variable Profiles registered"); }
 	}
 
 	protected function RegisterVariables() {
@@ -990,7 +982,7 @@ class BYD_Bbox extends IPSModule {
 
 		IPS_ApplyChanges($archivInstanzID);
 
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "Variables registered", 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "Variables registered"); }
 
 	}
 
@@ -1032,7 +1024,7 @@ class BYD_Bbox extends IPSModule {
 		];
 		$chartJSON = json_encode($chart);
 		$mediaID = $this->CreateMediaChart("BATT Voltage/Current Chart", $chartJSON, $position, $parentID);
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "MediaChart 'BATT Voltage/Current Chart' created", 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "MediaChart 'BATT Voltage/Current Chart' created"); }
 	}
 
 
@@ -1064,7 +1056,7 @@ class BYD_Bbox extends IPSModule {
 		];
 		$chartJSON = json_encode($chart);
 		$mediaID = $this->CreateMediaChart("Cell Voltage Chart", $chartJSON, $position, $parentID);
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "MediaChart 'Cell Voltage Chart' created", 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "MediaChart 'Cell Voltage Chart' created"); }
 	}
 
 
@@ -1096,7 +1088,7 @@ class BYD_Bbox extends IPSModule {
 		];
 		$chartJSON = json_encode($chart);
 		$mediaID = $this->CreateMediaChart("Cell Temperature Chart", $chartJSON, $position, $parentID);
-		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "MediaChart 'Cell Temperature Chart' created", 0); }
+		if($this->logLevel >= LogLevel::DEBUG) { $this->AddLog(__FUNCTION__, "MediaChart 'Cell Temperature Chart' created"); }
 	}
 
 
@@ -1118,21 +1110,20 @@ class BYD_Bbox extends IPSModule {
 		return $mediaID;
 	}
 
-	protected function AddLog($name, $daten, $format) {
 
+	protected function AddLog($name, $daten, $format=0) {
 		$this->logCnt++;
+		$logSender = "[".__CLASS__."] - " . $name;
 		if($this->logLevel >= LogLevel::DEBUG) {
-			$logsender = sprintf("%02d-T%2d [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
-			$this->SendDebug($logsender, $daten, $format); 	
-		} else {
-			$this->SendDebug("[".__CLASS__."] - " . $name, $daten, $format); 	
-		}
+			$logSender = sprintf("%02d-T%2d [%s] - %s", $this->logCnt, $_IPS['THREAD'], __CLASS__, $name);
+		} 
+		$this->SendDebug($logSender, $daten, $format); 	
 	
 		if($this->enableIPSLogOutput) {
 			if($format == 0) {
-				IPS_LogMessage("[".__CLASS__."] - " . $name, $daten);	
+				IPS_LogMessage($logSender, $daten);	
 			} else {
-				IPS_LogMessage("[".__CLASS__."] - " . $name, $this->String2Hex($daten));			
+				IPS_LogMessage($logSender, $this->String2Hex($daten));			
 			}
 		}
 	}
